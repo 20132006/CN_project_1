@@ -28,10 +28,10 @@ int main(int argc, char* argv[])
     char PORT[6];
     ROOT = getenv("PWD");
 
-	if(argc != 2)
-		strcpy(PORT,"10000");
-	else
-		strcpy(PORT,argv[1]);
+  	if(argc != 2)
+  		strcpy(PORT,"10000");
+  	else
+		  strcpy(PORT,argv[1]);
 
     int slot=0;
 
@@ -44,10 +44,12 @@ int main(int argc, char* argv[])
 
     while (1)
     {
-		//Write your own code 1.
-		//When a client sends request then catch the request(using accept function in "sys/socket.h") and do respond (using respond function in this code).
-		//Check the socket number and if there is some error then handle the error.
-		//You must make a code which can be handle to multiple users (I think that you can implement this using 'fork()' but it is not essentially required.)
+      ServerSocket new_sock;
+	    server.accept ( new_sock );
+  		//Write your own code 1.
+  		//When a client sends request then catch the request(using accept function in "sys/socket.h") and do respond (using respond function in this code).
+  		//Check the socket number and if there is some error then handle the error.
+  		//You must make a code which can be handle to multiple users (I think that you can implement this using 'fork()' but it is not essentially required.)
     }
 
     return 0;
