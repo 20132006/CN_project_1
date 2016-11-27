@@ -146,7 +146,6 @@ void respond(int n)
                 strcpy(path,cpy);
                 FILE *fp;
                 fp = fopen(path,"r");
-                printf("%s\n", path);
                 int k=0;
                 char input[99999];
                 int i;
