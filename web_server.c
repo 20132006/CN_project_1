@@ -18,6 +18,7 @@ int listenfd, clients[CLIENTMAX];
 void error(char *);
 void startServer(char *);
 void respond(int);
+off_t offset = 0;
 
 int main(int argc, char* argv[])
 {
@@ -46,7 +47,18 @@ int main(int argc, char* argv[])
     while (1)
     {
       clients[client_id] = accept(listenfd, (struct sockaddr*)NULL, NULL);
-      respond(client_id++);
+      if (clients[client_id] == -1)
+      {
+        //printf("Connection was invalid\n");
+        continue;
+      }
+      if (!fork())
+      {
+        close(listenfd);
+        respond(client_id);
+      }
+      close(clients[client_id]);
+      client_id++;
   		//Write your own code 1.
   		//When a client sends request then catch the request(using accept function in "sys/socket.h") and do respond (using respond function in this code).
   		//Check the socket number and if there is some error then handle the error.
@@ -126,9 +138,8 @@ void respond(int n)
       				//make path variable which is root-path (ROOT) + /index.html (in reqline[1])
       				//open file in the path to read-only. If it has some error then show error statements to current client.
       				//If the file is opened successfully then a server sends index.html file to current client.
-              if (reqline[1] == "/index.html")
+              //if (reqline[1] == "/index.html")
               {
-
                 char *cpy = (char*)malloc(newlen + 1);
                 strcpy(cpy,ROOT);
                 strcat(cpy,reqline[1]);
@@ -145,8 +156,10 @@ void respond(int n)
                     mesg[k++] = input[i];
                 }
                 fclose(fp);
-
-                send(clients[n], mesg, sizeof(mesg), 0);
+                int file_index = open(path, O_RDONLY);
+                sendfile (clients[n], file_index, NULL, 100);
+                close(file_index);
+                exit(0);
               }
             }
         }
