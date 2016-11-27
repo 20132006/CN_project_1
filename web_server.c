@@ -9,6 +9,8 @@
 #include<netdb.h>
 #include<signal.h>
 #include<fcntl.h>
+#include<fstream>
+#include<iostream>
 
 #define CLIENTMAX 1000
 #define BYTES 1024
@@ -44,8 +46,9 @@ int main(int argc, char* argv[])
 
     while (1)
     {
-      ServerSocket new_sock;
-	    server.accept ( new_sock );
+      clients[0] = accept(listenfd, (struct sockaddr*)NULL, NULL);
+      printf("Input was accepted\n");
+      respond(0);
   		//Write your own code 1.
   		//When a client sends request then catch the request(using accept function in "sys/socket.h") and do respond (using respond function in this code).
   		//Check the socket number and if there is some error then handle the error.
@@ -92,12 +95,18 @@ void startServer(char *port)
 
 void respond(int n)
 {
+    printf("Responded\n");
     char mesg[99999], *reqline[3], data_to_send[BYTES], path[99999];
     int rcvd, fd, bytes_read;
+    std::string m;
+
+    printf("Responded\n");
 
     memset( (void*)mesg, (int)'\0', 99999 );
 
     rcvd=recv(clients[n], mesg, 99999, 0);
+
+    printf("Responded\n");
 
     if (rcvd<0)
         fprintf(stderr,("recv() error\n"));
@@ -112,17 +121,37 @@ void respond(int n)
             reqline[2] = strtok (NULL, " \t\n");
             if ( strncmp( reqline[2], "HTTP/1.0", 8)!=0 && strncmp( reqline[2], "HTTP/1.1", 8)!=0 )
             {
-                write(clients[n], "HTTP/1.0 400 Bad Request\n", 25);
+              write(clients[n], "HTTP/1.0 400 Bad Request\n", 25);
             }
             else
             {
-                if ( strncmp(reqline[1], "/\0", 2)==0 )
-                    reqline[1] = "/index.html";
 
-        				//Write your own code 2.
-        				//make path variable which is root-path (ROOT) + /index.html (in reqline[1])
-        				//open file in the path to read-only. If it has some error then show error statements to current client.
-        				//If the file is opened successfully then a server sends index.html file to current client.
+              if ( strncmp(reqline[1], "/\0", 2)==0 )
+                reqline[1] = "/index.html";
+              size_t newlen = strlen(ROOT) + strlen(reqline[1]);
+              char *cpy = (char*)malloc(newlen + 1);
+
+              strcpy(cpy,ROOT);
+              strcat(cpy,reqline[1]);
+              strcpy(path,cpy);
+              printf("Responded\n");
+              std::ifstream in(path);
+              std::string line;
+              printf("%s\n", path);
+              int k=0;
+              while(getline(in, line))
+              {
+                std::cout<<line+"\n";
+                for (int i=0;i<line.length();i++)
+                  mesg[k++] = line[i];
+                mesg[k++] = '\n';
+              }
+
+              send(clients[n], mesg, sizeof(mesg), 0);
+              //Write your own code 2.
+      				//make path variable which is root-path (ROOT) + /index.html (in reqline[1])
+      				//open file in the path to read-only. If it has some error then show error statements to current client.
+      				//If the file is opened successfully then a server sends index.html file to current client.
             }
         }
     }
