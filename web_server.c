@@ -138,9 +138,10 @@ void respond(int n)
                 printf("%s\n", path);
                 int k=0;
                 char input[99999];
+                int i;
                 while(fgets(input, sizeof(input), (FILE *)fp) != NULL)
                 {
-                  for (int i=0;i<strlen(input);i++)
+                  for (i=0;i<strlen(input);i++)
                     mesg[k++] = input[i];
                 }
                 fclose(fp);
